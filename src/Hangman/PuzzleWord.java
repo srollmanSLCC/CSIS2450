@@ -16,6 +16,7 @@ public class PuzzleWord
     private int numberOfLetters;
     private String word;
     private static final String randomWordApiURL = "https://www.randomlists.com/data/words.json";
+    private static ArrayList<String> words = new ArrayList<>();
 
     public PuzzleWord()
     {
@@ -29,13 +30,13 @@ public class PuzzleWord
             }
             else
             {
-                word = GetFallbackWord();
+                word = getFallbackWord();
                 numberOfLetters = word.length();
             }
         }
         catch (Exception e)
         {
-            word = GetFallbackWord();
+            word = getFallbackWord();
             numberOfLetters = word.length();
         }
     }
@@ -45,7 +46,7 @@ public class PuzzleWord
      *
      * @return random word
      */
-    private String GetFallbackWord()
+    private String getFallbackWord()
     {
         List<String> fallbackWords = new ArrayList<>();
         fallbackWords.add("squash");
@@ -63,11 +64,11 @@ public class PuzzleWord
     }
 
     /**
-     * Gets the number of letters in the word.
+     * Gets the length of the word
      *
-     * @return number of letters in the word
+     * @return length of word.
      */
-    public int getNumberOfLetters()
+    public int getWordLength()
     {
         return numberOfLetters;
     }
@@ -82,48 +83,121 @@ public class PuzzleWord
         return word;
     }
 
-    private static String sendGetWord() throws IOException {
-        URL obj = new URL(randomWordApiURL);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-        con.setRequestMethod("GET");
-        int responseCode = con.getResponseCode();
-        System.out.println("GET Response Code :: " + responseCode);
-        if (responseCode == HttpURLConnection.HTTP_OK) // success
+    /**
+     * Gets a random word from the JSON array.
+     * @return
+     */
+    private static String getRandomWord()
+    {
+        try
         {
-            BufferedReader in = new BufferedReader(
-                new InputStreamReader(
-                    con.getInputStream()
-                )
-            );
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null)
+            if (words.size() > 0)
             {
-                response.append(inputLine);
+                Random rand = new Random();
+                return words.get(rand.nextInt(words.size()));
             }
-            in.close();
+        }
+        catch(Exception ex)
+        {
+            //Do nothing.
+        }
+        return null;
+    }
+
+    private static JSONArray getWordsFromApi()
+    {
+        try
+        {
+            URL obj = new URL(randomWordApiURL);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            int responseCode = con.getResponseCode();
+            System.out.println("GET Response Code :: " + responseCode);
+            if (responseCode == HttpURLConnection.HTTP_OK) // success
+            {
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(
+                                con.getInputStream()
+                        )
+                );
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null)
+                {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                JSONObject resp = new JSONObject(response.toString());
+                return resp.getJSONArray("data");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Do nothing.
+        }
+        return null;
+    }
+
+    /**
+     * Gets a list of words from a random word API and stores the list it in memory. 
+     * If we have a response already, we will just pull a random word from that.
+     * @return A random word to use for a puzzle that exists in the list.
+     */
+    private static String sendGetWord() throws IOException {
+        if (words != null)
+        {
+            return getRandomWord();
+        }
+
+        words = sanitizeWordList(getWordsFromApi());
+        return getRandomWord();
+    }
+
+    private static ArrayList<String> sanitizeWordList(JSONArray wordsFromApi)
+    {
+        ArrayList<String> allowedWords = new ArrayList<>();
+        for (int i = 0; i < wordsFromApi.length(); i++)
+        {
             try
             {
-                JSONObject resp = new JSONObject(response.toString());
-                JSONArray arr = resp.getJSONArray("data");
-                if (arr.length() > 0)
+                String word = wordsFromApi.get(i).toString();
+                if (word.contains("-"))
                 {
-                    Random rand = new Random();
-                    return arr.get(rand.nextInt(arr.length())).toString();
+                    // word is invalid, skip it.
+                    continue;
                 }
+                if (word.contains("'"))
+                {
+                    // word is invalid, skip it.
+                    continue;
+                }
+                if (word.contains("`"))
+                {
+                    // word is invalid, skip it.
+                    continue;
+                }
+                if (word.contains("."))
+                {
+                    // word is invalid, skip it.
+                    continue;
+                }
+                if (word.contains(" "))
+                {
+                    // word is invalid, skip it.
+                    continue;
+                }
+                allowedWords.add(word);
             }
             catch(Exception ex)
             {
-                //Do nothing.
+                // Do nothing, move on.
             }
 
         }
-        else
-        {
-            System.out.println("GET request not worked");
-        }
-        return null;
+
+        return allowedWords;
     }
 
     /**

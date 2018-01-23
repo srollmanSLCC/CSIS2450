@@ -146,7 +146,7 @@ public class PuzzleWord
      * @return A random word to use for a puzzle that exists in the list.
      */
     private static String sendGetWord() throws IOException {
-        if (words != null)
+        if (words != null && words.size() > 0)
         {
             return getRandomWord();
         }

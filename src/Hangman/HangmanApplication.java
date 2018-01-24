@@ -153,6 +153,7 @@ public class HangmanApplication
      *
      * @param tries how many tries the user has left.
      * @param maskedWord the word that the user is guessing with correct letters filled in.
+     * @param triedGuesses a string of words/letters that the user has tried separated by a space.
      */
     public static void renderGallows(int tries, String maskedWord, String triedGuesses)
     {
@@ -160,31 +161,24 @@ public class HangmanApplication
         {
             case 0:
                 System.out.println(String.format(" ;--,\n |  O\n | /|\\\n | / \\    %s - Previous Guesses: %s\n_|____", maskedWord, triedGuesses));
-//                System.out.println(" ;--,\n |  O\n | /|\\\n | / \\    " + maskedWord + "\n_|____");
                 break;
             case 1:
                 System.out.println(String.format(" ;--,\n |  O\n | /|\\\n | /       %s - Previous Guesses: %s\n_|____", maskedWord, triedGuesses));
-//                System.out.println(" ;--,\n |  O\n | /|\\\n | /       " + maskedWord + "\n_|____");
                 break;
             case 2:
                 System.out.println(String.format(" ;--,\n |  O\n | /|\\\n |         %s - Previous Guesses: %s\n_|____", maskedWord, triedGuesses));
-//                System.out.println(" ;--,\n |  O\n | /|\\\n |         " + maskedWord  + "\n_|____");
                 break;
             case 3:
                 System.out.println(String.format(" ;--,\n |  O\n | /|  \n |         %s - Previous Guesses: %s\n_|____", maskedWord, triedGuesses));
-//                System.out.println(" ;--,\n |  O\n | /|  \n |         " + maskedWord + "\n_|____");
                 break;
             case 4:
                 System.out.println(String.format(" ;--,\n |  O\n |  |  \n |         %s - Previous Guesses: %s\n_|____", maskedWord, triedGuesses));
-//                System.out.println(" ;--,\n |  O\n |  |  \n |         " + maskedWord + "\n_|____");
                 break;
             case 5:
                 System.out.println(String.format(" ;--,\n |  O\n |     \n |         %s - Previous Guesses: %s\n_|____", maskedWord, triedGuesses));
-//                System.out.println(" ;--,\n |  O\n |     \n |         " + maskedWord + "\n_|____");
                 break;
             case 6:
                 System.out.println(String.format(" ;--,\n |   \n |     \n |         %s - Previous Guesses: %s\n_|____", maskedWord, triedGuesses));
-//                System.out.println(" ;--,\n |   \n |     \n |         " + maskedWord + "\n_|____");
                 break;
         }
     }
